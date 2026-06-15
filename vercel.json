@@ -1,0 +1,14 @@
+cat > vercel.json << 'EOF'
+{
+  "headers": [
+    {
+      "source": "/:path*.jsx",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
+    }
+  ]
+}
