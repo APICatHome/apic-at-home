@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(mkdir -p /Users/lukecappelletti/Documents/apic-at-home/assets)",
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/assets/apic-hex-mark.png /Users/lukecappelletti/Documents/apic-at-home/assets/)",
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/assets/apic-logo-full.png /Users/lukecappelletti/Documents/apic-at-home/assets/)",
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum.css /Users/lukecappelletti/Documents/apic-at-home/forum.css)",
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum-data.js /Users/lukecappelletti/Documents/apic-at-home/forum-data.js)",
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/tweaks-panel.jsx /Users/lukecappelletti/Documents/apic-at-home/tweaks-panel.jsx)",
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum-components.jsx /Users/lukecappelletti/Documents/apic-at-home/forum-components.jsx)",
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum-detail.jsx /Users/lukecappelletti/Documents/apic-at-home/forum-detail.jsx)"
+    ]
+  }
+}
