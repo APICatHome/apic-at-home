@@ -9,7 +9,12 @@
       "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum-data.js /Users/lukecappelletti/Documents/apic-at-home/forum-data.js)",
       "Bash(cp /tmp/design_extract/apic-at-home-webside/project/tweaks-panel.jsx /Users/lukecappelletti/Documents/apic-at-home/tweaks-panel.jsx)",
       "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum-components.jsx /Users/lukecappelletti/Documents/apic-at-home/forum-components.jsx)",
-      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum-detail.jsx /Users/lukecappelletti/Documents/apic-at-home/forum-detail.jsx)"
+      "Bash(cp /tmp/design_extract/apic-at-home-webside/project/forum-detail.jsx /Users/lukecappelletti/Documents/apic-at-home/forum-detail.jsx)",
+      "Bash(cp \"/Users/lukecappelletti/.claude/projects/-Users-lukecappelletti-Documents-apic-at-home/c77c3ce0-9d27-49a8-920f-3d10092e86c8/tool-results/webfetch-1781614225668-quij7g.bin\" /tmp/design.tar.gz)",
+      "Bash(mkdir -p /tmp/design_extract)",
+      "Bash(tar -xzf /tmp/design.tar.gz -C /tmp/design_extract)",
+      "Bash(cp \"/tmp/design_extract/apic-at-home-webside/project/forum-labs.js\" /Users/lukecappelletti/Documents/apic-at-home/forum-labs.js)",
+      "Bash(cp \"/tmp/design_extract/apic-at-home-webside/project/forum-module.jsx\" /Users/lukecappelletti/Documents/apic-at-home/forum-module.jsx)"
     ]
   }
 }

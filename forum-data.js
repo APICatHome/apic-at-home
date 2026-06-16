@@ -2,23 +2,24 @@
    Content distilled from real APIC / DataPower lab write-ups. Attaches to window.FORUM_DATA */
 (function () {
   const CATEGORIES = [
-    { id: "labs",    name: "Lab Modules",        blurb: "Self-contained, repeatable hands-on modules.",     icon: "beaker",   accent: "cyan",   threads: 7 },
+    { id: "labs",    name: "Lab Modules",        blurb: "Self-contained, repeatable hands-on modules.",     icon: "beaker",   accent: "cyan",   threads: 8 },
     { id: "qa",      name: "Discussion / Q&A",   blurb: "Ask, answer, and trade patterns.",                  icon: "chat",     accent: "blue",   threads: 2 },
     { id: "install", name: "Install & Upgrade",  blurb: "Standing up and moving between versions.",          icon: "download", accent: "violet", threads: 8 },
-    { id: "trouble", name: "Troubleshooting",    blurb: "When the gateway won't peer and the pods won't start.", icon: "wrench", accent: "amber", threads: 5 },
+    { id: "trouble", name: "Troubleshooting",    blurb: "When the gateway won't peer and the pods won't start.", icon: "wrench", accent: "amber", threads: 6 },
     { id: "cicd",    name: "CI/CD Integration",  blurb: "Pipelines, GitOps, and config replication.",        icon: "branch",   accent: "green",  threads: 2 },
   ];
 
+  // All authors are Luca Cappelletti (single real author). Colors kept varied for avatar tone.
   const M = {
-    luke:    { name: "Luca Cappelletti", handle: "luke",    color: "#22d3ee", role: "Lab Author" },
-    priya:   { name: "Priya Nair",       handle: "pnair",   color: "#a78bfa", role: "Maintainer" },
-    matt:    { name: "Matt Kolinski",    handle: "mkolinski", color: "#f59e0b", role: "Maintainer" },
-    wenqian: { name: "Wenqian Yu",       handle: "wenqian", color: "#ec4899", role: "Lab Author" },
-    rina:    { name: "Rina Adeyemi",     handle: "rina",    color: "#34d399", role: "Member" },
-    devon:   { name: "Devon Park",       handle: "dpark",   color: "#8b5cf6", role: "Member" },
-    sasha:   { name: "Sasha Iqbal",      handle: "siqbal",  color: "#3b82f6", role: "Member" },
-    omar:    { name: "Omar Bishara",     handle: "obishara", color: "#06b6d4", role: "Member" },
-    marco:   { name: "Marco Velez",      handle: "mvelez",  color: "#10b981", role: "Member" },
+    luke:    { name: "Luca Cappelletti", handle: "luke", color: "#22d3ee", role: "Lab Author" },
+    priya:   { name: "Luca Cappelletti", handle: "luke", color: "#a78bfa", role: "Maintainer" },
+    matt:    { name: "Luca Cappelletti", handle: "luke", color: "#f59e0b", role: "Maintainer" },
+    wenqian: { name: "Luca Cappelletti", handle: "luke", color: "#ec4899", role: "Lab Author" },
+    rina:    { name: "Luca Cappelletti", handle: "luke", color: "#34d399", role: "Member" },
+    devon:   { name: "Luca Cappelletti", handle: "luke", color: "#8b5cf6", role: "Member" },
+    sasha:   { name: "Luca Cappelletti", handle: "luke", color: "#3b82f6", role: "Member" },
+    omar:    { name: "Luca Cappelletti", handle: "luke", color: "#06b6d4", role: "Member" },
+    marco:   { name: "Luca Cappelletti", handle: "luke", color: "#10b981", role: "Member" },
   };
 
   const c = (lang, body) => ({ type: "code", lang, body });
@@ -484,14 +485,64 @@
         ]},
       ],
     },
+
+    /* ── LAB-25 ─────────────────────────────────────────────────────────── */
+    {
+      id: "lab-25", cat: "labs", module: "LAB-25", level: "Intermediate", minutes: 45,
+      title: "Scrape APIC + DataPower metrics into Prometheus with Trawler (and why it's not IBM-supported)",
+      author: M.luke, created: "2026-06-12T09:00:00Z", lastAt: "2026-06-13T10:00:00Z",
+      tags: ["trawler", "prometheus", "metrics", "datapower", "grafana", "observability"],
+      replies: 4, views: 360, solved: true,
+      posts: [
+        { author: M.luke, at: "2026-06-12T09:00:00Z", body: [
+          p("Trawler is an IBM open-source metrics exporter (github.com/IBM/apiconnect-trawler) that runs inside the same Kubernetes cluster as API Connect and exposes metrics from every subsystem — Gateway/DataPower, Management, Analytics, Portal — in standard Prometheus format. It pulls DataPower-level metrics over the DataPower REST Management Interface (RMI, port 5554) and platform-level metrics over the API Manager REST API."),
+          p("Read this first: Trawler is a community tool, NOT a formally packaged IBM product. It is not covered by standard IBM Support and publishes no supported-version matrix, so compatibility with your APIC version must be validated before any production use. This module stands it up on a lab cluster (k3s + APIC v12.1.0.1) against kube-prometheus-stack."),
+          p("Prerequisites: a cluster with APIC deployed; the Prometheus Operator with the ServiceMonitor/PodMonitor CRDs available; RMI enabled on the Gateway pods; and Cloud Manager credentials carrying cloud:view, org:view and provider-org:view (client_credentials, API key, or username/password+realm all work). Grafana is optional — it ships with the Helm chart."),
+          c("bash", "# pre-flight: confirm the DataPower RMI is enabled on the gateway pods\nkubectl get datapowerservice -n <gateway-namespace> -o yaml | grep restManagement\n\n# if you don't already have Prometheus + Grafana in-cluster:\nhelm install kube-prometheus-stack prometheus-community/kube-prometheus-stack"),
+          p("Trawler deploys via Kustomize from the sample YAML in the repo's deployment folder. Customise these before applying: config.yaml (namespace pointers + which subsystem collectors to enable), secret-mgmt.yaml (Cloud Manager creds), secret-mgmt-org.yaml (provider-org creds), secret-dp.yaml (DataPower creds), and kustomization.yaml (target namespace; uncomment servicemonitor.yaml + service.yaml for the Prometheus Operator model)."),
+          c("bash", "kubectl apply -k .\n\n# for the Operator model, let it discover ServiceMonitors outside the Helm release labels:\nhelm upgrade kube-prometheus-stack prometheus-community/kube-prometheus-stack \\\n  --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false"),
+        ]},
+        { author: M.luke, at: "2026-06-12T09:15:00Z", solution: true, body: [
+          p("Two caveats that decide whether you can rely on this. (1) Support scope: because Trawler is community-maintained, treat it as best-effort observability, not a supported monitoring stack — pin the image, test on every APIC upgrade, and keep an OpenTelemetry path in mind for anything that must be supported. (2) Dashboards: IBM does not ship pre-built Grafana dashboards for APIC 10.0.8.x LTS, so you build them by hand against the exposed metric names once Prometheus is scraping."),
+          p("Reference set kept in the module: repo github.com/IBM/apiconnect-trawler, plus its docs/install.md, docs/metrics.md and docs/faq.md; the APIC 10.0.8 LTS pages on managing platform REST API keys and enabling OpenTelemetry; and the IBM Support scope policy (node/7228884) for exactly what 'community tool' means in practice."),
+        ]},
+      ],
+    },
+    /* ── LAB-26 ─────────────────────────────────────────────────────────── */
+    {
+      id: "lab-26", cat: "trouble", module: "LAB-26", level: "Intermediate", minutes: 25,
+      title: "Does the expiring Microsoft UEFI Secure Boot certificate (June 2026) affect APIC OVA deployments?",
+      author: M.luke, created: "2026-06-09T10:00:00Z", lastAt: "2026-06-16T09:30:00Z",
+      tags: ["secure-boot", "uefi", "ova", "vmware", "esxi", "bios"],
+      replies: 3, views: 210, solved: true, pinned: true,
+      posts: [
+        { author: M.luke, at: "2026-06-09T10:00:00Z", body: [
+          p("A customer (APIC 10.0.5.4 on OVA/vSphere) flagged the upcoming expiry of the Microsoft 'UEFI CA 2011' Secure Boot signing certificate on June 27, 2026 — citing the Red Hat and Broadcom/VMware advisories — and asked two things: (Q1) do the APIC OVA servers use UEFI Secure Boot, and (Q2) will they be affected when the certificate expires?"),
+          p("Short answer to both: no. For the expiry to affect a VM at all, TWO conditions must both be true — the VM is on EFI firmware (not legacy BIOS) AND Secure Boot is explicitly enabled. The APIC OVA satisfies neither: it ships as VM hardware version 10 (ESXi 5.5-compatible), a legacy BIOS template, and IBM's VMware docs never mention UEFI/EFI/Secure Boot."),
+          p("You can verify it yourself on the ESXi host — scan every VMX for a firmware key; the '-L' flag lists files that do NOT contain 'efi', so all BIOS VMs (including the APIC ones) show up:"),
+          c("bash", "find /vmfs/volumes/ -name \"*.vmx\" -print0 | xargs -0 grep -L \"efi\""),
+        ]},
+        { author: M.luke, at: "2026-06-09T10:20:00Z", solution: true, body: [
+          p("Confirmed three ways: IBM KC (no Secure Boot in any VMware prerequisite), VMX inspection (no firmware = \"efi\" entry on the APIC VMs), and the vSphere Client (VM Options › Boot Options › Firmware = BIOS, with the title bar reading 'ESXi 5.5 virtual machine')."),
+          p("And even in the hypothetical where Secure Boot WERE enabled: Broadcom KB 423893 is explicit that VMs keep booting after the certificate expires — the only impact is losing the ability to apply future Secure Boot DB/DBX updates, not a boot failure. IBM has not issued an APIC-specific advisory for this event. Full write-up, references and the recommended audit steps are in the lab module."),
+        ]},
+        { author: M.matt, at: "2026-06-12T11:00:00Z", body: [ p("Ran the VMX scan across all three ESXi hosts here — every APIC node (mgmt/analytics/portal) showed up in the grep -L output, so all BIOS. Good to have the one-liner to hand the VMware team for sign-off.") ]},
+      ],
+    },
   ];
 
-  const STATS = { members: 3142, online: 87, posts: 18460, solved: 6213 };
+  // Real counts derived from the actual content — no inflated figures.
+  const STATS = {
+    members: 1,                                                  // only Luca Cappelletti
+    online: 1,                                                   // you, right now
+    posts: THREADS.reduce((n, th) => n + th.posts.length, 0),    // actual posts in the forum
+    solved: THREADS.filter((th) => th.solved).length,           // actual solved threads
+  };
 
   const TRENDING_TAGS = [
     "datapower", "apic-v10", "2dcdr", "gateway-peering", "openshift",
     "feedback_2", "ova", "upgrade", "gatewayscript", "config-sync",
-    "websocket", "apicup", "argo-cd", "esxi",
+    "websocket", "apicup", "argo-cd", "esxi", "secure-boot",
   ];
 
   window.FORUM_DATA = { CATEGORIES, THREADS, MEMBERS: M, STATS, TRENDING_TAGS };

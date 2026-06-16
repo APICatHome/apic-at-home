@@ -235,7 +235,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 function App() {
   const D = window.FORUM_DATA;
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [view, setView] = useState("home");      // home | thread
+  const [view, setView] = useState("home");      // home | thread | module
   const [openThread, setOpenThread] = useState(null);
   const [activeCat, setActiveCat] = useState("all");
   const [sort, setSort] = useState("active");
@@ -281,6 +281,10 @@ function App() {
     setOpenThread(th); setView("thread");
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }
+  function openModuleView() {
+    setView("module");
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }
   function pickTag(tag) {
     setActiveTag(tag); setActiveCat("all"); setView("home"); setQuery("");
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -312,9 +316,12 @@ function App() {
       <NavBar query={query} setQuery={setQuery} onHome={goHome} onNew={() => setComposer(true)} onTag={pickTag} />
 
       <main className="page">
-        {view === "thread" && openThread ? (
+        {view === "module" && openThread ? (
+          <LabModule thread={openThread} cat={catById(openThread.cat)}
+            onBack={() => { setView("thread"); if (scrollRef.current) scrollRef.current.scrollTop = 0; }} />
+        ) : view === "thread" && openThread ? (
           <ThreadDetail thread={openThread} cat={catById(openThread.cat)}
-            onBack={() => goHome(true)} onTag={pickTag} />
+            onBack={() => goHome(true)} onTag={pickTag} onOpenModule={openModuleView} />
         ) : (
           <>
             <Hero stats={D.STATS} onNew={() => setComposer(true)} />
@@ -381,4 +388,52 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+/* ================= ACCESS GATE ================= */
+const ACCESS_PASSWORD = "Smartway358.";
+
+function AccessGate({ onUnlock }) {
+  const [val, setVal] = useState("");
+  const [err, setErr] = useState(false);
+  function submit(e) {
+    e.preventDefault();
+    if (val === ACCESS_PASSWORD) {
+      try { localStorage.setItem("apic_forum_access", "1"); } catch (_) {}
+      onUnlock();
+    } else {
+      setErr(true);
+    }
+  }
+  return (
+    <div className="gate">
+      <form className="gate-card" onSubmit={submit}>
+        <img src="assets/apic-hex-mark.png" className="gate-mark" alt="APIC at Home" />
+        <h1 className="gate-title">APIC <span>at</span> Home</h1>
+        <p className="gate-sub">Private lab forum · access restricted</p>
+        <label className="gate-field">
+          <span>Access password</span>
+          <input
+            type="password"
+            autoFocus
+            value={val}
+            onChange={(e) => { setVal(e.target.value); setErr(false); }}
+            placeholder="Enter password"
+            spellCheck={false}
+            data-err={err ? "1" : "0"}
+          />
+        </label>
+        {err && <div className="gate-err">Incorrect password — try again.</div>}
+        <button type="submit" className="btn-primary gate-btn">Enter forum</button>
+      </form>
+    </div>
+  );
+}
+
+function Root() {
+  const [unlocked, setUnlocked] = useState(() => {
+    try { return localStorage.getItem("apic_forum_access") === "1"; } catch (_) { return false; }
+  });
+  if (!unlocked) return <AccessGate onUnlock={() => setUnlocked(true)} />;
+  return <App />;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Root />);

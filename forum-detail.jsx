@@ -52,7 +52,7 @@ function Post({ post, isOP }) {
 }
 
 /* ---------- thread detail view ---------- */
-function ThreadDetail({ thread, cat, onBack, onTag }) {
+function ThreadDetail({ thread, cat, onBack, onTag, onOpenModule }) {
   const c = ACCENTS[cat.accent];
   const [reply, setReply] = useState("");
   const replyRef = useRef(null);
@@ -91,7 +91,7 @@ function ThreadDetail({ thread, cat, onBack, onTag }) {
             <span className="module-dot">·</span>
             <span>Self-contained &amp; repeatable</span>
           </div>
-          <button className="module-start" style={{ "--c": c }}>Open lab module <Icon name="arrowRight" size={15} /></button>
+          <button className="module-start" style={{ "--c": c }} onClick={onOpenModule}>Open lab module <Icon name="arrowRight" size={15} /></button>
         </div>
       )}
 
